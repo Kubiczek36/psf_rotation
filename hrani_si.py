@@ -31,7 +31,38 @@ def getBinaryPSF(ImArray, size = 50, trashold = 30):
     #plt.imshow(PSF)
     return PSF, cg
 
-def condition(difference, refPlus, refMinus): ### Podmínka posunu
+def evaluation(ref,refPlus, refMinus, stepDif, direction):
+    # current = PSF(camera.getImg())
+    current = PSF(fileName2)
+    dif0 = ref.compare(current)
+    print("-------------------- \n", type(dif0) )
+    while condition(dif0, refPlus, refMinus):
+        movenment = dif0/stepDif
+        print(movenment)
+        # stage.move(direction*movenment)
+        # current = PSF(camera.getImg())
+        current = reference ## <-------- pak se oddělá
+        dif = ref.compare(current)
+        print(dif)
+        if dif0<dif:
+            direction *= (-1)
+        dif0 = dif
+
+def evaluation1(ref,refPlus, refMinus, step, direction):      #### domyslet jak to bude s těmi kroky a podmínkou
+    # current = PSF(camera.getImg())
+    current = PSF(fileName2)
+    dif0 = ref.compare(current)
+    while condition(dif0, refPlus, refMinus):
+        print(step)
+        # stage.move(direction*step)
+        # current = PSF(camera.getImg())
+        current = reference ## <-------- pak se oddělá
+        dif = ref.compare(current)
+        if dif0<dif:
+            direction *= (-1)
+        dif0 = dif
+
+def condition(difference, refPlus, refMinus):### Podmínka posunu
     return (max(refPlus, refMinus)/2 < difference)
 
 class PSF:
@@ -43,56 +74,36 @@ class PSF:
         self.PSFArray, self.cg = getBinaryPSF(self.tArray)
     def compare(self, second):
         plt.imshow(self.PSFArray - second.PSFArray)
-        return np.sum(abs(self.PSFArray - second.PSFArray))
+        return float(np.sum(abs(self.PSFArray - second.PSFArray)))
        
+### Testovani
 
-refer = PSF(fileName0)
+reference = PSF(fileName0)
+
+# stage.move(+1)
+# camera.getImg()
 referPlus = PSF(fileName1)
-referMinus = PSF(fileName_1)
-
-# stage.move(+1)
-stepPlus = refer.compare(referPlus)
+stepPlus = reference.compare(referPlus)
 # stage.move(-2)
-stepMinus = refer.compare(referMinus)
+# camera.getImg()
+referMinus = PSF(fileName_1)
+stepMinus = reference.compare(referMinus)
+
 # stage.move(+1)
 
-directionOfMovenment
+directionOfMovenment = 1
 
-def evaluation(ref, plus, minus, direction):
-    stepDif = np.mean(plus, minus)
-    # current = PSF(camera.getImg())
-    current = PSF(fileName2)
-    dif0 = ref.compare(current)
-    while condition(dif0, plus, minus):
-        movenment = dif0/stepDif
-        print(movenment)
-        # stage.move(direction*movenment)
-        # current = PSF(camera.getImg())
-        dif = ref.compare(current)
-        if dif0<dif:
-            direction*=(-1)
-        dif0 = dif
 
-def evaluation1(ref, step, direction):
-    # current = PSF(camera.getImg())
-    current = PSF(fileName2)
-    dif0 = ref.compare(current)
-    while condition(dif0, plus, minus):
-        print(step)
-        # stage.move(direction*step)
-        # current = PSF(camera.getImg())
-        dif = ref.compare(current)
-        if dif0<dif:
-            direction*=(-1)
-        dif0 = dif
+stepDifference = float(np.mean([stepPlus, stepMinus]))
 
+evaluation(reference, stepPlus, stepMinus, stepDifference, directionOfMovenment)
+
+evaluation1(reference, stepPlus, stepMinus, stepDifference, directionOfMovenment)
 
 """
 zkusit dorovnat na přesno, ale když to bude dlouho pendlovat a bude to jakž takž v mezi tak to nechat
 """
-    else:
-        print('Asi OK. rozdíl obrázků dif = ', dif)
-
+"""
 array1 = imgRead(fileName1)
 #arr1 = plt.imshow(array1)
 PSF1, cg1 = getBinaryPSF(array1)
@@ -109,3 +120,4 @@ print("--------------- \n souradnice2:", cg2)
 
 plt.imshow(PSF1 - PSF2)
 print(np.sum(abs(PSF1 - PSF2)))
+"""
