@@ -56,20 +56,36 @@ stepPlus = refer.compare(referPlus)
 stepMinus = refer.compare(referMinus)
 # stage.move(+1)
 
-direction = 1
+directionOfMovenment
 
-def evaluation(ref, plus, minus):
-    dif = []
+def evaluation(ref, plus, minus, direction):
+    stepDif = np.mean(plus, minus)
     # current = PSF(camera.getImg())
     current = PSF(fileName2)
-    dif.append(ref.compare(current))
-    while condition(dif[len(dif)], plus, minus):
-        movenment = dif/np.mean(plus, minus)
+    dif0 = ref.compare(current)
+    while condition(dif0, plus, minus):
+        movenment = dif0/stepDif
         print(movenment)
-        # stage.move(movenment)
+        # stage.move(direction*movenment)
         # current = PSF(camera.getImg())
-        dif.append(ref.compare(current))
-        
+        dif = ref.compare(current)
+        if dif0<dif:
+            direction*=(-1)
+        dif0 = dif
+
+def evaluation1(ref, step, direction):
+    # current = PSF(camera.getImg())
+    current = PSF(fileName2)
+    dif0 = ref.compare(current)
+    while condition(dif0, plus, minus):
+        print(step)
+        # stage.move(direction*step)
+        # current = PSF(camera.getImg())
+        dif = ref.compare(current)
+        if dif0<dif:
+            direction*=(-1)
+        dif0 = dif
+
 
 """
 zkusit dorovnat na přesno, ale když to bude dlouho pendlovat a bude to jakž takž v mezi tak to nechat
